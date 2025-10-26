@@ -9,8 +9,14 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
     }
     
     if (reminder.is_recurring) {
-      const days = reminder.days_of_week ? JSON.parse(reminder.days_of_week).join(', ') : '';
-      return `${reminder.recurrence_type} at ${reminder.time_of_day}${days ? ` on ${days}` : ''}`;
+      let daysText = '';
+      if (reminder.days_of_week) {
+        const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const parsedDays = JSON.parse(reminder.days_of_week);
+        const sortedDays = dayOrder.filter(day => parsedDays.includes(day));
+        daysText = sortedDays.join(', ');
+      }
+      return `${reminder.recurrence_type} at ${reminder.time_of_day}${daysText ? ` on ${daysText}` : ''}`;
     }
     
     return 'Custom reminder';

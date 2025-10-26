@@ -227,7 +227,6 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
             </select>
           </div>
 
