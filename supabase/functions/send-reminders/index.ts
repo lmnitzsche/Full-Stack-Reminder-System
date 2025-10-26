@@ -28,6 +28,7 @@ serve(async (req) => {
         days_of_week,
         exact_datetime,
         task_id,
+        user_id,
         tasks (
           title,
           description
@@ -56,34 +57,91 @@ serve(async (req) => {
     // Send each reminder
     for (const reminder of reminders) {
       try {
+        // Get user profile to check email notification preference
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('email_notifications_enabled')
+          .eq('id', reminder.user_id)
+          .single()
+
+        // Get user email for email notifications
+        const { data: { user } } = await supabaseClient.auth.admin.getUserById(reminder.user_id)
+        
         // Create message
         const task = reminder.tasks
         const message = `🔔 *TASK REMINDER*\n\n*${task.title}*${task.description ? `\n\n${task.description}` : ''}`
 
+        let telegramSuccess = false
+        let emailSuccess = false
+        let errors: string[] = []
+
         // Send via Telegram (phone_number field now stores chat_id)
-        const telegramResponse = await fetch(
-          `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              chat_id: reminder.phone_number, // This is actually the Telegram chat_id
-              text: message,
-              parse_mode: 'Markdown',
-            }),
+        if (reminder.phone_number) {
+          const telegramResponse = await fetch(
+            `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                chat_id: reminder.phone_number, // This is actually the Telegram chat_id
+                text: message,
+                parse_mode: 'Markdown',
+              }),
+            }
+          )
+
+          const telegramData = await telegramResponse.json()
+
+          if (!telegramResponse.ok || !telegramData.ok) {
+            console.error(`Failed to send Telegram message to ${reminder.phone_number}:`, telegramData)
+            errors.push(`Telegram: ${telegramData.description || 'Unknown error'}`)
+          } else {
+            telegramSuccess = true
           }
-        )
+        }
 
-        const telegramData = await telegramResponse.json()
+        // Send via Email if enabled
+        if (profile?.email_notifications_enabled && user?.email) {
+          try {
+            const emailHtml = `
+              <div style="font-family: 'Courier New', monospace; background: #0a0e27; color: #00ff41; padding: 20px; border: 2px solid #00ff41;">
+                <h1 style="color: #00ff41; text-transform: uppercase; letter-spacing: 3px;">🔔 Task Reminder</h1>
+                <div style="margin: 20px 0; padding: 20px; background: #1a1f3a; border: 1px solid #2d3748;">
+                  <h2 style="color: #00ff41; margin: 0 0 10px 0;">${task.title}</h2>
+                  ${task.description ? `<p style="color: #8b95a5; margin: 0;">${task.description}</p>` : ''}
+                </div>
+                <p style="color: #8b95a5; font-size: 12px; margin-top: 20px;">
+                  This is an automated reminder from your Task Tracker system.
+                </p>
+              </div>
+            `
 
-        if (!telegramResponse.ok || !telegramData.ok) {
-          console.error(`Failed to send Telegram message to ${reminder.phone_number}:`, telegramData)
+            const { error: emailError } = await supabaseClient.auth.admin.sendEmail({
+              to: user.email,
+              subject: `🔔 Task Reminder: ${task.title}`,
+              html: emailHtml,
+            })
+
+            if (emailError) {
+              console.error(`Failed to send email to ${user.email}:`, emailError)
+              errors.push(`Email: ${emailError.message}`)
+            } else {
+              emailSuccess = true
+            }
+          } catch (emailErr) {
+            console.error('Email error:', emailErr)
+            errors.push(`Email: ${emailErr instanceof Error ? emailErr.message : 'Unknown error'}`)
+          }
+        }
+
+        // If at least one method succeeded, consider it a success
+        if (!telegramSuccess && !emailSuccess && errors.length > 0) {
           results.push({
             reminder_id: reminder.id,
             success: false,
-            error: telegramData.description || 'Unknown error'
+            error: errors.join(', ')
           })
           continue
         }
@@ -120,15 +178,17 @@ serve(async (req) => {
           reminder_id: reminder.id,
           success: true,
           chat_id: reminder.phone_number,
+          telegram_sent: telegramSuccess,
+          email_sent: emailSuccess,
           next_send_at: nextSendAt
         })
 
-      } catch (error) {
-        console.error(`Error processing reminder ${reminder.id}:`, error)
+      } catch (err) {
+        console.error(`Error processing reminder ${reminder.id}:`, err)
         results.push({
           reminder_id: reminder.id,
           success: false,
-          error: error.message
+          error: err instanceof Error ? err.message : 'Unknown error'
         })
       }
     }
@@ -141,9 +201,11 @@ serve(async (req) => {
       headers: { 'Content-Type': 'application/json' }
     })
 
-  } catch (error) {
-    console.error('Error in send-reminders function:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (err) {
+    console.error('Error in send-reminders function:', err)
+    return new Response(JSON.stringify({ 
+      error: err instanceof Error ? err.message : 'Unknown error' 
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     })
