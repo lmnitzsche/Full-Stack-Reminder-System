@@ -3,13 +3,13 @@ import { supabase } from '../lib/supabase';
 import { format, addDays, setHours, setMinutes } from 'date-fns';
 
 const DAYS_OF_WEEK = [
-  { value: 'monday', label: 'Monday' },
-  { value: 'tuesday', label: 'Tuesday' },
-  { value: 'wednesday', label: 'Wednesday' },
-  { value: 'thursday', label: 'Thursday' },
-  { value: 'friday', label: 'Friday' },
-  { value: 'saturday', label: 'Saturday' },
-  { value: 'sunday', label: 'Sunday' },
+  { value: 'monday', label: 'MON' },
+  { value: 'tuesday', label: 'TUE' },
+  { value: 'wednesday', label: 'WED' },
+  { value: 'thursday', label: 'THU' },
+  { value: 'friday', label: 'FRI' },
+  { value: 'saturday', label: 'SAT' },
+  { value: 'sunday', label: 'SUN' },
 ];
 
 function ReminderForm({ taskId, userId, onReminderCreated }) {

@@ -77,7 +77,7 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
     <div className="task-form-container">
       {!showReminderForm ? (
         <form onSubmit={handleSubmit} className="task-form">
-          <h2>{editingTask ? 'Edit Task' : 'Create New Task'}</h2>
+          <h2>{editingTask ? '[EDIT TASK]' : '[NEW TASK]'}</h2>
           
           <div className="form-group">
             <label htmlFor="title">Task Title *</label>
@@ -116,8 +116,8 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
         </form>
       ) : (
         <div className="reminder-step">
-          <h2>Add Reminder (Optional)</h2>
-          <p>Would you like to set up a reminder for this task?</p>
+          <h2>[REMINDER CONFIGURATION]</h2>
+          <p>Configure automated reminder protocol for this task</p>
           
           <ReminderForm 
             taskId={currentTaskId}

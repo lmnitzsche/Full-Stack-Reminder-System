@@ -1,16 +1,18 @@
 :root {
-  --primary-color: #4f46e5;
-  --primary-hover: #4338ca;
+  --primary-color: #00ff41;
+  --primary-hover: #00cc33;
   --secondary-color: #6b7280;
-  --success-color: #10b981;
-  --danger-color: #ef4444;
-  --background: #f9fafb;
-  --card-background: #ffffff;
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --success-color: #00ff41;
+  --danger-color: #ff0040;
+  --background: #0a0e27;
+  --card-background: #1a1f3a;
+  --text-primary: #00ff41;
+  --text-secondary: #8b95a5;
+  --border-color: #2d3748;
+  --shadow: 0 4px 6px rgba(0, 255, 65, 0.1);
+  --shadow-lg: 0 10px 30px rgba(0, 255, 65, 0.2);
+  --terminal-bg: #0d1117;
+  --terminal-border: #30363d;
 }
 
 * {
@@ -20,9 +22,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background);
@@ -33,6 +33,10 @@ body {
 .app {
   min-height: 100vh;
   padding: 2rem 1rem;
+  background: 
+    linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .container {
@@ -44,6 +48,11 @@ body {
 .app-header {
   text-align: center;
   margin-bottom: 3rem;
+  border: 2px solid var(--primary-color);
+  padding: 2rem;
+  background: var(--terminal-bg);
+  border-radius: 0;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
 }
 
 .app-header .header-content {
@@ -55,30 +64,57 @@ body {
 }
 
 .app-header h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   margin-bottom: 0.5rem;
   color: var(--text-primary);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.7);
+}
+
+.app-header h1::before {
+  content: '> ';
+  color: var(--primary-color);
 }
 
 .app-header p {
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+}
+
+.app-header p::before {
+  content: '// ';
+  color: var(--primary-color);
 }
 
 .header-user {
   display: flex;
   align-items: center;
   gap: 1rem;
+  border: 1px solid var(--terminal-border);
+  padding: 0.5rem 1rem;
+  background: var(--terminal-bg);
 }
 
 .user-email {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+}
+
+.user-email::before {
+  content: 'user@';
+  color: var(--primary-color);
 }
 
 .btn-logout {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Loading */
@@ -117,55 +153,100 @@ body {
 .task-form-container,
 .reminder-step {
   background: var(--card-background);
-  border-radius: 12px;
+  border: 2px solid var(--primary-color);
+  border-radius: 0;
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: var(--shadow);
+  position: relative;
+}
+
+.task-form-container::before,
+.reminder-step::before {
+  content: '[TASK ENTRY MODULE]';
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: var(--card-background);
+  padding: 0 10px;
+  color: var(--primary-color);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+}
+
+.reminder-step::before {
+  content: '[REMINDER CONFIG]';
 }
 
 .task-form h2,
 .reminder-step h2 {
   margin-bottom: 1.5rem;
   color: var(--text-primary);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.task-form h2::before,
+.reminder-step h2::before {
+  content: '$ ';
+  color: var(--primary-color);
 }
 
 .reminder-step p {
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
+  font-family: 'Courier New', monospace;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: bold;
   color: var(--text-primary);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+}
+
+.form-group label::before {
+  content: '> ';
+  color: var(--primary-color);
 }
 
 .form-group small {
   display: block;
   margin-top: 0.25rem;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+}
+
+.form-group small::before {
+  content: '// ';
+  color: var(--primary-color);
+  opacity: 0.5;
 }
 
 .form-group input[type="text"],
 .form-group input[type="tel"],
+.form-group input[type="email"],
+.form-group input[type="password"],
 .form-group input[type="date"],
 .form-group input[type="time"],
 .form-group textarea,
 .form-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border: 2px solid var(--terminal-border);
+  background: var(--terminal-bg);
+  color: var(--text-primary);
+  border-radius: 0;
   font-size: 1rem;
-  transition: border-color 0.2s;
-  font-family: inherit;
+  transition: all 0.2s;
+  font-family: 'Courier New', monospace;
 }
 
 .form-group input:focus,
@@ -173,6 +254,8 @@ body {
 .form-group select:focus {
   outline: none;
   border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+  background: #0a0e27;
 }
 
 .form-group textarea {
@@ -193,19 +276,22 @@ body {
   gap: 0.5rem;
   cursor: pointer;
   padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border: 1px solid var(--terminal-border);
+  border-radius: 0;
   transition: all 0.2s;
+  background: rgba(0, 255, 65, 0.03);
+  font-family: 'Courier New', monospace;
 }
 
 .radio-label:hover {
   border-color: var(--primary-color);
-  background-color: #f5f3ff;
+  background-color: rgba(0, 255, 65, 0.1);
 }
 
 .radio-label input[type="radio"] {
   width: auto;
   cursor: pointer;
+  accent-color: var(--primary-color);
 }
 
 /* Days selector */
@@ -217,25 +303,30 @@ body {
 
 .day-button {
   padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
-  background: var(--card-background);
-  border-radius: 8px;
+  border: 1px solid var(--terminal-border);
+  background: rgba(0, 255, 65, 0.03);
+  border-radius: 0;
   cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: bold;
   transition: all 0.2s;
-  color: var(--text-primary);
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .day-button:hover {
   border-color: var(--primary-color);
-  background-color: #f5f3ff;
+  background-color: rgba(0, 255, 65, 0.1);
+  color: var(--primary-color);
 }
 
 .day-button.selected {
-  background-color: var(--primary-color);
+  background-color: rgba(0, 255, 65, 0.2);
   border-color: var(--primary-color);
-  color: white;
+  color: var(--primary-color);
+  border-width: 2px;
 }
 
 /* Buttons */
@@ -243,51 +334,55 @@ body {
 .btn-secondary,
 .btn-text {
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
+  border: 2px solid var(--primary-color);
+  border-radius: 0;
+  font-size: 0.9rem;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: inherit;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--background);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
+  background-color: transparent;
+  color: var(--primary-color);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: var(--text-secondary);
-  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  border: 2px solid var(--terminal-border);
 }
 
 .btn-secondary:hover {
-  border-color: var(--secondary-color);
-  color: var(--text-primary);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 .btn-text {
   background: transparent;
   color: var(--text-secondary);
+  border: none;
   padding: 0.5rem;
 }
 
 .btn-text:hover {
-  color: var(--text-primary);
-  text-decoration: underline;
+  color: var(--primary-color);
+  text-decoration: none;
 }
 
 .form-actions {
@@ -305,11 +400,12 @@ body {
 }
 
 .stat {
-  background: var(--card-background);
+  background: rgba(0, 255, 65, 0.05);
   padding: 1.5rem;
-  border-radius: 12px;
+  border-radius: 0;
   text-align: center;
-  box-shadow: var(--shadow);
+  box-shadow: none;
+  border: 1px solid var(--terminal-border);
 }
 
 .stat-number {
@@ -318,46 +414,75 @@ body {
   font-weight: 700;
   color: var(--primary-color);
   margin-bottom: 0.25rem;
+  font-family: 'Courier New', monospace;
 }
 
 .stat-label {
   display: block;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
 }
 
 /* Filter Buttons */
 .filter-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0;
   margin-bottom: 1.5rem;
-  background: var(--card-background);
-  padding: 0.5rem;
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+  background: rgba(0, 255, 65, 0.03);
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--terminal-border);
+  position: relative;
+}
+
+.filter-buttons::before {
+  content: '[FILTER]';
+  position: absolute;
+  top: -12px;
+  left: 10px;
+  background: var(--background);
+  padding: 0 5px;
+  font-size: 0.7rem;
+  color: var(--primary-color);
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-family: 'Courier New', monospace;
 }
 
 .filter-buttons button {
   flex: 1;
   padding: 0.75rem;
   border: none;
+  border-right: 1px solid var(--terminal-border);
   background: transparent;
-  border-radius: 8px;
+  border-radius: 0;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: bold;
   color: var(--text-secondary);
   transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+}
+
+.filter-buttons button:last-child {
+  border-right: none;
 }
 
 .filter-buttons button:hover {
-  background-color: #f3f4f6;
+  background-color: rgba(0, 255, 65, 0.1);
+  color: var(--primary-color);
 }
 
 .filter-buttons button.active {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: rgba(0, 255, 65, 0.15);
+  color: var(--primary-color);
+  border-top: 2px solid var(--primary-color);
 }
 
 /* Task List */
@@ -370,23 +495,28 @@ body {
 /* Task Item */
 .task-item {
   background: var(--card-background);
-  border-radius: 12px;
+  border: 1px solid var(--terminal-border);
+  border-left: 3px solid var(--primary-color);
+  border-radius: 0;
   padding: 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: none;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
   transition: all 0.2s;
+  font-family: 'Courier New', monospace;
 }
 
 .task-item:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  border-left-width: 5px;
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+  transform: translateX(2px);
 }
 
 .task-item.completed {
-  opacity: 0.7;
+  opacity: 0.6;
+  border-left-color: var(--text-secondary);
 }
 
 .task-main {
@@ -401,6 +531,7 @@ body {
   cursor: pointer;
   margin-top: 0.25rem;
   flex-shrink: 0;
+  accent-color: var(--primary-color);
 }
 
 .task-content {
@@ -408,9 +539,16 @@ body {
 }
 
 .task-title {
-  font-size: 1.125rem;
+  font-size: 1rem;
   margin-bottom: 0.5rem;
   color: var(--text-primary);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.task-title::before {
+  content: '> ';
+  color: var(--primary-color);
 }
 
 .task-item.completed .task-title {
@@ -422,6 +560,13 @@ body {
   color: var(--text-secondary);
   margin-bottom: 0.75rem;
   line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.task-description::before {
+  content: '// ';
+  color: var(--primary-color);
+  opacity: 0.5;
 }
 
 .task-reminders {
@@ -433,21 +578,34 @@ body {
 
 .reminder-tag {
   display: inline-block;
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: rgba(0, 255, 65, 0.1);
+  color: var(--primary-color);
   padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  border: 1px solid #fde68a;
+  border-radius: 0;
+  font-size: 0.8rem;
+  border: 1px solid var(--primary-color);
+  font-family: 'Courier New', monospace;
+}
+
+.reminder-tag::before {
+  content: '[REMINDER] ';
+  font-weight: bold;
 }
 
 .reminder-phone {
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .task-meta {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+}
+
+.task-meta::before {
+  content: 'created: ';
+  color: var(--primary-color);
+  opacity: 0.7;
 }
 
 .task-actions {
@@ -457,17 +615,20 @@ body {
 
 .btn-icon {
   background: transparent;
-  border: none;
-  font-size: 1.25rem;
+  border: 1px solid var(--terminal-border);
+  font-size: 0.8rem;
   cursor: pointer;
   padding: 0.5rem;
-  border-radius: 6px;
+  border-radius: 0;
   transition: all 0.2s;
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
 }
 
 .btn-icon:hover {
-  background-color: #f3f4f6;
-  transform: scale(1.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 /* Empty State */
@@ -536,55 +697,99 @@ body {
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--background);
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 65, 0.03) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(0, 255, 65, 0.03) 3px
+    );
 }
 
 .auth-card {
   background: var(--card-background);
-  border-radius: 16px;
+  border: 2px solid var(--primary-color);
+  border-radius: 0;
   padding: 3rem 2rem;
   max-width: 420px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
   animation: fadeIn 0.5s ease-out;
+  position: relative;
+}
+
+.auth-card::before {
+  content: '[ACCESS TERMINAL]';
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: var(--card-background);
+  padding: 0 10px;
+  color: var(--primary-color);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
 }
 
 .auth-card h1 {
   text-align: center;
   margin-bottom: 0.5rem;
-  font-size: 2rem;
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--primary-color);
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.auth-card h1::before {
+  content: '> ';
 }
 
 .auth-subtitle {
   text-align: center;
   color: var(--text-secondary);
   margin-bottom: 2rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+.auth-subtitle::before {
+  content: '// ';
+  color: var(--primary-color);
 }
 
 .auth-tabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  background: var(--background);
-  padding: 0.5rem;
-  border-radius: 12px;
+  background: var(--terminal-bg);
+  padding: 0.25rem;
+  border: 1px solid var(--terminal-border);
 }
 
 .auth-tabs button {
   flex: 1;
   padding: 0.75rem;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 0;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: bold;
   color: var(--text-secondary);
   transition: all 0.2s;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
 }
 
 .auth-tabs button.active {
-  background: var(--primary-color);
-  color: white;
+  background: var(--terminal-bg);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 .auth-form {
@@ -594,21 +799,33 @@ body {
 }
 
 .auth-error {
-  background-color: #fef2f2;
-  border: 2px solid #fecaca;
-  border-radius: 8px;
+  background-color: rgba(255, 0, 64, 0.1);
+  border: 2px solid var(--danger-color);
+  border-radius: 0;
   padding: 1rem;
-  color: #991b1b;
-  font-size: 0.9rem;
+  color: var(--danger-color);
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+}
+
+.auth-error::before {
+  content: '[ERROR] ';
+  font-weight: bold;
 }
 
 .auth-message {
-  background-color: #f0fdf4;
-  border: 2px solid #bbf7d0;
-  border-radius: 8px;
+  background-color: rgba(0, 255, 65, 0.1);
+  border: 2px solid var(--primary-color);
+  border-radius: 0;
   padding: 1rem;
-  color: #166534;
-  font-size: 0.9rem;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+}
+
+.auth-message::before {
+  content: '[SUCCESS] ';
+  font-weight: bold;
 }
 
 .auth-submit {
@@ -620,11 +837,13 @@ body {
   text-align: center;
   margin-top: 1.5rem;
   color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
 }
 
 .auth-footer .btn-text {
   color: var(--primary-color);
-  font-weight: 600;
+  font-weight: bold;
 }
 
 /* Animations */

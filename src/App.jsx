@@ -92,8 +92,8 @@ function App() {
         <header className="app-header">
           <div className="header-content">
             <div>
-              <h1>📋 Task Tracker</h1>
-              <p>Manage your tasks with smart reminders</p>
+              <h1>Task Tracker v1.0</h1>
+              <p>Task management system with automated reminder protocols</p>
             </div>
             <div className="header-user">
               <span className="user-email">{session.user.email}</span>
@@ -106,9 +106,9 @@ function App() {
 
         {error && (
           <div className="error-banner">
-            <strong>⚠️ Database Connection Issue:</strong> {error}
+            <strong>Database Connection Issue:</strong> {error}
             <br />
-            <small>Make sure you've created the database tables in Supabase (see SUPABASE_SCHEMA.md)</small>
+            <small>Verify database tables exist in Supabase (see SUPABASE_SCHEMA.md)</small>
           </div>
         )}
 

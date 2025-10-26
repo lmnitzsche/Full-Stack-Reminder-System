@@ -36,7 +36,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
             <div className="task-reminders">
               {task.reminders.map((reminder) => (
                 <div key={reminder.id} className="reminder-tag">
-                  🔔 {formatReminder(reminder)}
+                  {formatReminder(reminder)}
                   <span className="reminder-phone"> → {reminder.phone_number}</span>
                 </div>
               ))}
@@ -45,7 +45,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
           
           <div className="task-meta">
             <span className="task-date">
-              Created {format(new Date(task.created_at), 'MMM d, yyyy')}
+              {format(new Date(task.created_at), 'MMM d, yyyy')}
             </span>
           </div>
         </div>
@@ -57,14 +57,14 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
           className="btn-icon"
           title="Edit task"
         >
-          ✏️
+          [EDIT]
         </button>
         <button 
           onClick={() => onDelete(task.id)}
           className="btn-icon"
           title="Delete task"
         >
-          🗑️
+          [DELETE]
         </button>
       </div>
     </div>

@@ -40,8 +40,8 @@ function Auth() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>📋 Task Tracker</h1>
-        <p className="auth-subtitle">Manage your tasks with smart reminders</p>
+        <h1>Task Tracker</h1>
+        <p className="auth-subtitle">Secure task management system</p>
 
         <div className="auth-tabs">
           <button
