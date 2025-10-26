@@ -43,7 +43,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
               {task.reminders.map((reminder) => (
                 <div key={reminder.id} className="reminder-tag">
                   {formatReminder(reminder)}
-                  <span className="reminder-phone"> → {reminder.phone_number}</span>
+                  <span className="reminder-phone"> → Telegram</span>
                 </div>
               ))}
             </div>

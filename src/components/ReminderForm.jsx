@@ -156,16 +156,16 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
   return (
     <form onSubmit={handleSubmit} className="reminder-form">
       <div className="form-group">
-        <label htmlFor="phoneNumber">Phone Number *</label>
+        <label htmlFor="phoneNumber">Telegram Chat ID *</label>
         <input
           id="phoneNumber"
-          type="tel"
+          type="text"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
-          placeholder="+1234567890"
+          placeholder="123456789"
           required
         />
-        <small>Include country code (e.g., +1 for US)</small>
+        <small>Your Telegram chat ID (see setup guide)</small>
       </div>
 
       <div className="form-group">
