@@ -11,9 +11,9 @@ This will automatically deploy your app when you push to the `main` branch.
 
 ## Step 2: Add Secrets to GitHub
 
-1. Go to your GitHub repo: https://github.com/lmnitzsche/task-tracker
+1. Go to your GitHub repo: https://github.com/lmnitzsche/Full-Stack-Reminder-System
 2. Click "Settings" → "Secrets and variables" → "Actions"
-3. Click "New repository secret" and add these two:
+3. Click "New repository secret" and add these FOUR secrets:
 
 **Secret 1:**
 - Name: `SUPABASE_ACCESS_TOKEN`
@@ -22,6 +22,14 @@ This will automatically deploy your app when you push to the `main` branch.
 **Secret 2:**
 - Name: `SUPABASE_PROJECT_ID`
 - Value: `gunwklwxcvayboxjmraz`
+
+**Secret 3:**
+- Name: `VITE_SUPABASE_URL`
+- Value: `https://gunwklwxcvayboxjmraz.supabase.co`
+
+**Secret 4:**
+- Name: `VITE_SUPABASE_ANON_KEY`
+- Value: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1bndrbHd4Y3ZheWJveGptcmF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0Mzg4NjUsImV4cCI6MjA3NzAxNDg2NX0.iASkcEMOQhtvLlW-PEc9KYCZx1QvgU49-kkK523d5ic`
 
 ## Step 3: Enable GitHub Pages
 
