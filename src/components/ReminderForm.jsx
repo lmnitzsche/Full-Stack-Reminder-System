@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { format, addDays, setHours, setMinutes } from 'date-fns';
 
@@ -12,7 +12,7 @@ const DAYS_OF_WEEK = [
   { value: 'sunday', label: 'SUN' },
 ];
 
-function ReminderForm({ taskId, userId, onReminderCreated }) {
+function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [reminderType, setReminderType] = useState('exact'); // exact, recurring
   const [isRecurring, setIsRecurring] = useState(false);
@@ -27,6 +27,32 @@ function ReminderForm({ taskId, userId, onReminderCreated }) {
   const [selectedDays, setSelectedDays] = useState(['monday', 'wednesday', 'friday']);
   
   const [loading, setLoading] = useState(false);
+
+  // Load existing reminder data when editing
+  useEffect(() => {
+    if (editingReminder) {
+      setPhoneNumber(editingReminder.phone_number || '');
+      
+      if (editingReminder.exact_datetime) {
+        setReminderType('exact');
+        const date = new Date(editingReminder.exact_datetime);
+        setExactDate(format(date, 'yyyy-MM-dd'));
+        setExactTime(format(date, 'HH:mm'));
+      } else if (editingReminder.is_recurring) {
+        setReminderType('recurring');
+        setRecurrenceType(editingReminder.recurrence_type || 'daily');
+        setTimeOfDay(editingReminder.time_of_day || '09:00');
+        
+        if (editingReminder.days_of_week) {
+          try {
+            setSelectedDays(JSON.parse(editingReminder.days_of_week));
+          } catch (e) {
+            console.error('Error parsing days_of_week:', e);
+          }
+        }
+      }
+    }
+  }, [editingReminder]);
 
   const toggleDay = (day) => {
     if (selectedDays.includes(day)) {
@@ -85,25 +111,43 @@ function ReminderForm({ taskId, userId, onReminderCreated }) {
         const [year, month, day] = exactDate.split('-').map(Number);
         const [hours, minutes] = exactTime.split(':').map(Number);
         reminderData.exact_datetime = new Date(year, month - 1, day, hours, minutes).toISOString();
+        // Clear recurring fields when using exact
+        reminderData.recurrence_type = null;
+        reminderData.time_of_day = null;
+        reminderData.days_of_week = null;
       } else {
         reminderData.recurrence_type = recurrenceType;
         reminderData.time_of_day = timeOfDay;
+        // Clear exact datetime when using recurring
+        reminderData.exact_datetime = null;
         
         if (recurrenceType === 'weekly') {
           reminderData.days_of_week = JSON.stringify(selectedDays);
+        } else {
+          reminderData.days_of_week = null;
         }
       }
 
-      const { error } = await supabase
-        .from('reminders')
-        .insert([reminderData]);
+      let error;
+      if (editingReminder) {
+        // Update existing reminder
+        ({ error } = await supabase
+          .from('reminders')
+          .update(reminderData)
+          .eq('id', editingReminder.id));
+      } else {
+        // Create new reminder
+        ({ error } = await supabase
+          .from('reminders')
+          .insert([reminderData]));
+      }
 
       if (error) throw error;
       
       onReminderCreated();
     } catch (error) {
-      console.error('Error creating reminder:', error);
-      alert('Error creating reminder. Please try again.');
+      console.error('Error saving reminder:', error);
+      alert('Error saving reminder. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -219,7 +263,7 @@ function ReminderForm({ taskId, userId, onReminderCreated }) {
       )}
 
       <button type="submit" disabled={loading} className="btn-primary">
-        {loading ? 'Creating...' : 'Add Reminder'}
+        {loading ? (editingReminder ? 'Updating...' : 'Creating...') : (editingReminder ? 'Update Reminder' : 'Add Reminder')}
       </button>
     </form>
   );

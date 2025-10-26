@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import ReminderForm from './ReminderForm';
 
@@ -8,6 +8,8 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [editingReminder, setEditingReminder] = useState(null);
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (editingTask) {
@@ -15,6 +17,13 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
       setDescription(editingTask.description || '');
       setCurrentTaskId(editingTask.id);
       setShowReminderForm(false);
+      
+      // Scroll to form when editing
+      setTimeout(() => {
+        if (formRef.current) {
+          formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   }, [editingTask]);
 
@@ -32,8 +41,19 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
           .eq('id', editingTask.id);
 
         if (error) throw error;
-        resetForm();
-        onTaskCreated();
+        
+        // After updating task, fetch existing reminder if any
+        const { data: reminders } = await supabase
+          .from('reminders')
+          .select('*')
+          .eq('task_id', editingTask.id);
+        
+        if (reminders && reminders.length > 0) {
+          setEditingReminder(reminders[0]);
+        }
+        
+        setCurrentTaskId(editingTask.id);
+        setShowReminderForm(true);
       } else {
         // Create new task with user_id
         const { data, error } = await supabase
@@ -60,6 +80,7 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
     setDescription('');
     setShowReminderForm(false);
     setCurrentTaskId(null);
+    setEditingReminder(null);
     if (onCancelEdit) onCancelEdit();
   };
 
@@ -74,7 +95,7 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
   };
 
   return (
-    <div className="task-form-container">
+    <div className="task-form-container" ref={formRef}>
       {!showReminderForm ? (
         <form onSubmit={handleSubmit} className="task-form">
           <h2>{editingTask ? '[EDIT TASK]' : '[NEW TASK]'}</h2>
@@ -117,16 +138,17 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
       ) : (
         <div className="reminder-step">
           <h2>[REMINDER CONFIGURATION]</h2>
-          <p>Configure automated reminder protocol for this task</p>
+          <p>{editingReminder ? 'Update automated reminder protocol' : 'Configure automated reminder protocol for this task'}</p>
           
           <ReminderForm 
             taskId={currentTaskId}
             userId={userId}
+            editingReminder={editingReminder}
             onReminderCreated={handleReminderCreated}
           />
           
           <button onClick={handleSkipReminder} className="btn-text">
-            Skip and finish
+            {editingReminder ? 'Keep existing and finish' : 'Skip and finish'}
           </button>
         </div>
       )}
