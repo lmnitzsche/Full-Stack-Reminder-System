@@ -28,6 +28,28 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
   
   const [loading, setLoading] = useState(false);
 
+  // Load user's saved Telegram Chat ID when component mounts
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('telegram_chat_id')
+          .eq('id', userId)
+          .single();
+
+        if (error) throw error;
+        if (data?.telegram_chat_id && !editingReminder) {
+          setPhoneNumber(data.telegram_chat_id);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [userId, editingReminder]);
+
   // Load existing reminder data when editing
   useEffect(() => {
     if (editingReminder) {

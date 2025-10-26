@@ -880,6 +880,130 @@ body {
   }
 }
 
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  gap: 0;
+  margin-bottom: 2rem;
+  border: 2px solid var(--primary-color);
+  background: var(--terminal-bg);
+  overflow: hidden;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 1rem 2rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-right: 2px solid var(--primary-color);
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.tab-btn:last-child {
+  border-right: none;
+}
+
+.tab-btn:hover {
+  background: rgba(0, 255, 65, 0.1);
+  color: var(--primary-color);
+}
+
+.tab-btn.active {
+  background: var(--primary-color);
+  color: var(--background);
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.5);
+}
+
+/* Settings */
+.settings-container {
+  background: var(--card-background);
+  border: 2px solid var(--terminal-border);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.settings-header {
+  margin-bottom: 2rem;
+}
+
+.settings-form {
+  max-width: 600px;
+}
+
+.settings-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.settings-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+.settings-form .helper-text {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.settings-form .terminal-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-border);
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.settings-form .terminal-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.settings-form .button-group {
+  margin-top: 2rem;
+}
+
+.settings-form .message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;

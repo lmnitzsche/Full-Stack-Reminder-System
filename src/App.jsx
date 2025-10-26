@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import Auth from './components/Auth';
+import Settings from './components/Settings';
 import './App.css';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState(null);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('tasks'); // 'tasks' or 'settings'
 
   useEffect(() => {
     // Get initial session
@@ -104,6 +106,22 @@ function App() {
           </div>
         </header>
 
+        {/* Tab Navigation */}
+        <div className="tab-navigation">
+          <button 
+            className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tasks')}
+          >
+            [TASKS]
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            [SETTINGS]
+          </button>
+        </div>
+
         {error && (
           <div className="error-banner">
             <strong>Database Connection Issue:</strong> {error}
@@ -112,21 +130,27 @@ function App() {
           </div>
         )}
 
-        <TaskForm 
-          onTaskCreated={handleTaskCreated}
-          editingTask={editingTask}
-          onCancelEdit={handleCancelEdit}
-          userId={session.user.id}
-        />
+        {activeTab === 'tasks' ? (
+          <>
+            <TaskForm 
+              onTaskCreated={handleTaskCreated}
+              editingTask={editingTask}
+              onCancelEdit={handleCancelEdit}
+              userId={session.user.id}
+            />
 
-        {loading ? (
-          <div className="loading">Loading tasks...</div>
+            {loading ? (
+              <div className="loading">Loading tasks...</div>
+            ) : (
+              <TaskList 
+                tasks={tasks} 
+                onRefresh={fetchTasks}
+                onEdit={handleEdit}
+              />
+            )}
+          </>
         ) : (
-          <TaskList 
-            tasks={tasks} 
-            onRefresh={fetchTasks}
-            onEdit={handleEdit}
-          />
+          <Settings user={session.user} />
         )}
       </div>
     </div>
