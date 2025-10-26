@@ -165,7 +165,7 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
           placeholder="123456789"
           required
         />
-        <small>Your Telegram chat ID (see setup guide)</small>
+        <small>Message @userinfobot on Telegram to get your Chat ID</small>
       </div>
 
       <div className="form-group">
