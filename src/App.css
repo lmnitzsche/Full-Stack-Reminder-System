@@ -938,6 +938,28 @@ body {
   max-width: 600px;
 }
 
+.settings-form .section-title {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--terminal-border);
+}
+
+.settings-form .section-title::before {
+  content: '// ';
+  color: var(--text-secondary);
+}
+
+.settings-form.password-section {
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 2px solid var(--terminal-border);
+}
+
 .settings-form .form-group {
   margin-bottom: 1.5rem;
 }
