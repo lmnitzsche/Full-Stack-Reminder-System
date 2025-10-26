@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import ReminderForm from './ReminderForm';
 
-function TaskForm({ onTaskCreated, editingTask, onCancelEdit }) {
+function TaskForm({ onTaskCreated, editingTask, onCancelEdit, userId }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [showReminderForm, setShowReminderForm] = useState(false);
@@ -35,10 +35,10 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit }) {
         resetForm();
         onTaskCreated();
       } else {
-        // Create new task
+        // Create new task with user_id
         const { data, error } = await supabase
           .from('tasks')
-          .insert([{ title, description }])
+          .insert([{ title, description, user_id: userId }])
           .select()
           .single();
 
@@ -121,6 +121,7 @@ function TaskForm({ onTaskCreated, editingTask, onCancelEdit }) {
           
           <ReminderForm 
             taskId={currentTaskId}
+            userId={userId}
             onReminderCreated={handleReminderCreated}
           />
           

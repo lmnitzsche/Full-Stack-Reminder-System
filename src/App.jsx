@@ -2,19 +2,45 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
+import Auth from './components/Auth';
 import './App.css';
 
 function App() {
+  const [session, setSession] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchTasks();
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        fetchTasks();
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        fetchTasks();
+      } else {
+        setTasks([]);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const fetchTasks = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('tasks')
@@ -51,12 +77,31 @@ function App() {
     setEditingTask(null);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  // Show auth screen if not logged in
+  if (!session) {
+    return <Auth />;
+  }
+
   return (
     <div className="app">
       <div className="container">
         <header className="app-header">
-          <h1>📋 Task Tracker</h1>
-          <p>Manage your tasks with smart reminders</p>
+          <div className="header-content">
+            <div>
+              <h1>📋 Task Tracker</h1>
+              <p>Manage your tasks with smart reminders</p>
+            </div>
+            <div className="header-user">
+              <span className="user-email">{session.user.email}</span>
+              <button onClick={handleSignOut} className="btn-secondary btn-logout">
+                Logout
+              </button>
+            </div>
+          </div>
         </header>
 
         {error && (
@@ -71,6 +116,7 @@ function App() {
           onTaskCreated={handleTaskCreated}
           editingTask={editingTask}
           onCancelEdit={handleCancelEdit}
+          userId={session.user.id}
         />
 
         {loading ? (

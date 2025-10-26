@@ -12,7 +12,7 @@ const DAYS_OF_WEEK = [
   { value: 'sunday', label: 'Sunday' },
 ];
 
-function ReminderForm({ taskId, onReminderCreated }) {
+function ReminderForm({ taskId, userId, onReminderCreated }) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [reminderType, setReminderType] = useState('exact'); // exact, recurring
   const [isRecurring, setIsRecurring] = useState(false);
@@ -74,6 +74,7 @@ function ReminderForm({ taskId, onReminderCreated }) {
     try {
       const reminderData = {
         task_id: taskId,
+        user_id: userId,
         phone_number: phoneNumber,
         is_recurring: reminderType === 'recurring',
         is_active: true,
