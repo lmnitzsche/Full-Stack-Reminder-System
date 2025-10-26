@@ -5,7 +5,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
 
   const formatReminder = (reminder) => {
     if (reminder.exact_datetime) {
-      return `On ${format(new Date(reminder.exact_datetime), 'MMM d, yyyy at h:mm a')}`;
+      return `${format(new Date(reminder.exact_datetime), 'MMM d, yyyy')} at ${format(new Date(reminder.exact_datetime), 'h:mm a')}`;
     }
     
     if (reminder.is_recurring) {
