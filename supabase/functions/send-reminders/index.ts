@@ -105,30 +105,46 @@ serve(async (req) => {
         // Send via Email if enabled
         if (profile?.email_notifications_enabled && user?.email) {
           try {
-            const emailHtml = `
-              <div style="font-family: 'Courier New', monospace; background: #0a0e27; color: #00ff41; padding: 20px; border: 2px solid #00ff41;">
-                <h1 style="color: #00ff41; text-transform: uppercase; letter-spacing: 3px;">🔔 Task Reminder</h1>
-                <div style="margin: 20px 0; padding: 20px; background: #1a1f3a; border: 1px solid #2d3748;">
-                  <h2 style="color: #00ff41; margin: 0 0 10px 0;">${task.title}</h2>
-                  ${task.description ? `<p style="color: #8b95a5; margin: 0;">${task.description}</p>` : ''}
-                </div>
-                <p style="color: #8b95a5; font-size: 12px; margin-top: 20px;">
-                  This is an automated reminder from your Task Tracker system.
-                </p>
-              </div>
-            `
+            const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+            
+            if (RESEND_API_KEY) {
+              const emailResponse = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${RESEND_API_KEY}`,
+                },
+                body: JSON.stringify({
+                  from: 'Task Tracker <reminders@yourdomain.com>', // TODO: Change to your verified domain
+                  to: user.email,
+                  subject: `🔔 Task Reminder: ${task.title}`,
+                  html: `
+                    <div style="font-family: 'Courier New', monospace; background: #0a0e27; color: #00ff41; padding: 20px; border: 2px solid #00ff41;">
+                      <h1 style="color: #00ff41; text-transform: uppercase; letter-spacing: 3px;">🔔 Task Reminder</h1>
+                      <div style="margin: 20px 0; padding: 20px; background: #1a1f3a; border: 1px solid #2d3748;">
+                        <h2 style="color: #00ff41; margin: 0 0 10px 0;">${task.title}</h2>
+                        ${task.description ? `<p style="color: #8b95a5; margin: 0;">${task.description}</p>` : ''}
+                      </div>
+                      <p style="color: #8b95a5; font-size: 12px; margin-top: 20px;">
+                        This is an automated reminder from your Task Tracker system.
+                      </p>
+                    </div>
+                  `
+                }),
+              })
 
-            const { error: emailError } = await supabaseClient.auth.admin.sendEmail({
-              to: user.email,
-              subject: `🔔 Task Reminder: ${task.title}`,
-              html: emailHtml,
-            })
+              const emailData = await emailResponse.json()
 
-            if (emailError) {
-              console.error(`Failed to send email to ${user.email}:`, emailError)
-              errors.push(`Email: ${emailError.message}`)
+              if (!emailResponse.ok) {
+                console.error(`Failed to send email to ${user.email}:`, emailResponse.status, emailData)
+                errors.push(`Email: ${JSON.stringify(emailData)}`)
+              } else {
+                console.log(`Email sent successfully to ${user.email}:`, emailData)
+                emailSuccess = true
+              }
             } else {
-              emailSuccess = true
+              console.log('RESEND_API_KEY not set, skipping email')
+              errors.push('Email: RESEND_API_KEY not configured')
             }
           } catch (emailErr) {
             console.error('Email error:', emailErr)
