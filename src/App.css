@@ -289,29 +289,13 @@ body {
 }
 
 .radio-label input[type="radio"] {
-  appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid var(--terminal-border);
-  background: transparent;
-  cursor: pointer;
-  position: relative;
+  display: none;
 }
 
-.radio-label input[type="radio"]:checked {
+.radio-label:has(input[type="radio"]:checked) {
   border-color: var(--primary-color);
-  background: transparent;
-}
-
-.radio-label input[type="radio"]:checked::after {
-  content: 'X';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--primary-color);
-  font-size: 0.7rem;
-  font-weight: bold;
+  background-color: rgba(0, 255, 65, 0.15);
+  border-width: 2px;
 }
 
 /* Days selector */
