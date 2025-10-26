@@ -115,7 +115,7 @@ serve(async (req) => {
                   'Authorization': `Bearer ${RESEND_API_KEY}`,
                 },
                 body: JSON.stringify({
-                  from: 'Task Tracker <reminders@yourdomain.com>', // TODO: Change to your verified domain
+                  from: 'Task Tracker <reminders@logannitzsche.com>',
                   to: user.email,
                   subject: `🔔 Task Reminder: ${task.title}`,
                   html: `
