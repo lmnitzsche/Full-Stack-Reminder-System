@@ -1,20 +1,9 @@
-# Authentication Setup - SQL Updates
+-- ============================================
+-- FIX AUTHENTICATION AND USER ISOLATION
+-- Run this entire file in Supabase SQL Editor
+-- ============================================
 
-## IMPORTANT: Run these SQL commands in your Supabase SQL Editor
-
-### Step 1: Check Current State
-```sql
--- Check if user_id column exists and if there are any tasks
-SELECT column_name, data_type, is_nullable 
-FROM information_schema.columns 
-WHERE table_name = 'tasks' AND column_name = 'user_id';
-
-SELECT COUNT(*) as task_count FROM tasks;
-```
-
-### Step 2: Drop Existing Policies First
-```sql
--- Drop all existing policies
+-- Step 1: Drop all existing policies
 DROP POLICY IF EXISTS "Enable all operations for tasks" ON tasks;
 DROP POLICY IF EXISTS "Enable all operations for reminders" ON reminders;
 DROP POLICY IF EXISTS "Enable all operations for user_settings" ON user_settings;
@@ -26,47 +15,34 @@ DROP POLICY IF EXISTS "Users can view their own reminders" ON reminders;
 DROP POLICY IF EXISTS "Users can create their own reminders" ON reminders;
 DROP POLICY IF EXISTS "Users can update their own reminders" ON reminders;
 DROP POLICY IF EXISTS "Users can delete their own reminders" ON reminders;
-```
+DROP POLICY IF EXISTS "Users can view their own settings" ON user_settings;
+DROP POLICY IF EXISTS "Users can create their own settings" ON user_settings;
+DROP POLICY IF EXISTS "Users can update their own settings" ON user_settings;
 
-### Step 3: Add or Update user_id Columns
-```sql
--- Add user_id to tasks if it doesn't exist, or modify if it does
-DO $$ 
-BEGIN
-    -- Drop user_id if it exists (to start fresh)
-    ALTER TABLE tasks DROP COLUMN IF EXISTS user_id;
-    
-    -- Add user_id column with proper constraints
-    ALTER TABLE tasks ADD COLUMN user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE;
-    
-    -- Drop and re-add for reminders
-    ALTER TABLE reminders DROP COLUMN IF EXISTS user_id;
-    ALTER TABLE reminders ADD COLUMN user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE;
-    
-EXCEPTION
-    WHEN others THEN
-        RAISE NOTICE 'Error: %', SQLERRM;
-END $$;
-```
+-- Step 2: Delete all existing tasks and reminders (clean slate)
+-- This is the easiest solution - removes all old data
+DELETE FROM reminders;
+DELETE FROM tasks;
 
-### Step 4: Create Indexes
-```sql
--- Create indexes for performance
+-- Step 3: Drop and recreate user_id columns with proper constraints
+ALTER TABLE tasks DROP COLUMN IF EXISTS user_id;
+ALTER TABLE tasks ADD COLUMN user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE;
+
+ALTER TABLE reminders DROP COLUMN IF EXISTS user_id;
+ALTER TABLE reminders ADD COLUMN user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- Step 3: Create indexes for performance
 DROP INDEX IF EXISTS idx_tasks_user_id;
 DROP INDEX IF EXISTS idx_reminders_user_id;
-
 CREATE INDEX idx_tasks_user_id ON tasks(user_id);
 CREATE INDEX idx_reminders_user_id ON reminders(user_id);
-```
 
-### Step 5: Create RLS Policies
-```sql
--- Enable RLS
+-- Step 4: Enable RLS on all tables
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
 
--- Tasks policies
+-- Step 5: Create RLS Policies for Tasks
 CREATE POLICY "Users can view their own tasks" ON tasks
   FOR SELECT USING (auth.uid() = user_id);
 
@@ -79,7 +55,7 @@ CREATE POLICY "Users can update their own tasks" ON tasks
 CREATE POLICY "Users can delete their own tasks" ON tasks
   FOR DELETE USING (auth.uid() = user_id);
 
--- Reminders policies
+-- Step 6: Create RLS Policies for Reminders
 CREATE POLICY "Users can view their own reminders" ON reminders
   FOR SELECT USING (auth.uid() = user_id);
 
@@ -92,7 +68,7 @@ CREATE POLICY "Users can update their own reminders" ON reminders
 CREATE POLICY "Users can delete their own reminders" ON reminders
   FOR DELETE USING (auth.uid() = user_id);
 
--- User settings policies
+-- Step 7: Create RLS Policies for User Settings
 CREATE POLICY "Users can view their own settings" ON user_settings
   FOR SELECT USING (auth.uid()::text = user_id);
 
@@ -101,31 +77,17 @@ CREATE POLICY "Users can create their own settings" ON user_settings
 
 CREATE POLICY "Users can update their own settings" ON user_settings
   FOR UPDATE USING (auth.uid()::text = user_id);
-```
 
-### Step 6: Verify Setup
-```sql
--- Check that policies are in place
-SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual 
-FROM pg_policies 
-WHERE tablename IN ('tasks', 'reminders', 'user_settings');
+-- ============================================
+-- VERIFICATION QUERIES (Run these separately to check)
+-- ============================================
 
--- Verify columns
-SELECT column_name, data_type, is_nullable 
-FROM information_schema.columns 
-WHERE table_name IN ('tasks', 'reminders') AND column_name = 'user_id';
-```
+-- Check policies are created
+-- SELECT schemaname, tablename, policyname, permissive, roles, cmd 
+-- FROM pg_policies 
+-- WHERE tablename IN ('tasks', 'reminders', 'user_settings');
 
-## Important Note
-
-After running these SQL commands, you need to:
-1. Enable Email auth in Supabase Dashboard → Authentication → Providers → Email
-2. Configure email templates (optional but recommended)
-3. Set Site URL in Authentication settings to your deployment URL
-
-## For Development
-
-If you have existing tasks and want to keep them, you'll need to:
-1. Create a user account first
-2. Get the user's UUID from the auth.users table
-3. Update existing tasks with that user_id before making it NOT NULL
+-- Check user_id columns exist and are NOT NULL
+-- SELECT column_name, data_type, is_nullable 
+-- FROM information_schema.columns 
+-- WHERE table_name IN ('tasks', 'reminders') AND column_name = 'user_id';
