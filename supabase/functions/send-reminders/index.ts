@@ -67,10 +67,12 @@ serve(async (req) => {
         // Get user email for email notifications
         const { data: { user } } = await supabaseClient.auth.admin.getUserById(reminder.user_id)
         
-        // Create message
+        // Create messages
         const task = reminder.tasks
-        const message = `🔔 *TASK REMINDER*\n\n*${task.title}*${task.description ? `\n\n${task.description}` : ''}`
-
+        
+        // Telegram message - just the task, bot name says it all
+        const telegramMessage = `*${task.title}*${task.description ? `\n\n${task.description}` : ''}`
+        
         let telegramSuccess = false
         let emailSuccess = false
         let errors: string[] = []
@@ -86,7 +88,7 @@ serve(async (req) => {
               },
               body: JSON.stringify({
                 chat_id: reminder.phone_number, // This is actually the Telegram chat_id
-                text: message,
+                text: telegramMessage,
                 parse_mode: 'Markdown',
               }),
             }
@@ -117,10 +119,10 @@ serve(async (req) => {
                 body: JSON.stringify({
                   from: 'Task Tracker <reminders@logannitzsche.com>',
                   to: user.email,
-                  subject: `🔔 Task Reminder: ${task.title}`,
+                  subject: `🤓 Task Reminder: ${task.title}`,
                   html: `
                     <div style="font-family: 'Courier New', monospace; background: #0a0e27; color: #00ff41; padding: 20px; border: 2px solid #00ff41;">
-                      <h1 style="color: #00ff41; text-transform: uppercase; letter-spacing: 3px;">🔔 Task Reminder</h1>
+                      <h1 style="color: #00ff41; text-transform: uppercase; letter-spacing: 3px;">🤓 Task Reminder</h1>
                       <div style="margin: 20px 0; padding: 20px; background: #1a1f3a; border: 1px solid #2d3748;">
                         <h2 style="color: #00ff41; margin: 0 0 10px 0;">${task.title}</h2>
                         ${task.description ? `<p style="color: #8b95a5; margin: 0;">${task.description}</p>` : ''}
