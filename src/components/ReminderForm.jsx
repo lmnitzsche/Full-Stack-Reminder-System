@@ -14,6 +14,7 @@ const DAYS_OF_WEEK = [
 
 function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [notificationMethod, setNotificationMethod] = useState('telegram'); // telegram, email, both
   const [reminderType, setReminderType] = useState('exact'); // exact, recurring
   const [isRecurring, setIsRecurring] = useState(false);
   
@@ -54,6 +55,7 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
   useEffect(() => {
     if (editingReminder) {
       setPhoneNumber(editingReminder.phone_number || '');
+      setNotificationMethod(editingReminder.notification_method || 'telegram');
       
       if (editingReminder.exact_datetime) {
         setReminderType('exact');
@@ -107,9 +109,10 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!phoneNumber.trim()) {
-      alert('Please enter a phone number');
+
+    // Validate based on notification method
+    if ((notificationMethod === 'telegram' || notificationMethod === 'both') && !phoneNumber.trim()) {
+      alert('Telegram Chat ID is required for Telegram notifications');
       return;
     }
 
@@ -124,6 +127,7 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
         task_id: taskId,
         user_id: userId,
         phone_number: phoneNumber,
+        notification_method: notificationMethod,
         is_recurring: reminderType === 'recurring',
         is_active: true,
         next_send_at: calculateNextSendAt(),
@@ -178,17 +182,32 @@ function ReminderForm({ taskId, userId, editingReminder, onReminderCreated }) {
   return (
     <form onSubmit={handleSubmit} className="reminder-form">
       <div className="form-group">
-        <label htmlFor="phoneNumber">Telegram Chat ID *</label>
-        <input
-          id="phoneNumber"
-          type="text"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-          placeholder="123456789"
-          required
-        />
-        <small>Message @userinfobot on Telegram to get your Chat ID</small>
+        <label htmlFor="notificationMethod">Send Via</label>
+        <select
+          id="notificationMethod"
+          value={notificationMethod}
+          onChange={(e) => setNotificationMethod(e.target.value)}
+          className="terminal-input"
+        >
+          <option value="telegram">Telegram Only</option>
+          <option value="email">Email Only</option>
+          <option value="both">Both Telegram & Email</option>
+        </select>
       </div>
+
+      {(notificationMethod === 'telegram' || notificationMethod === 'both') && (
+        <div className="form-group">
+          <label htmlFor="phoneNumber">Telegram Chat ID {notificationMethod === 'both' ? '' : '*'}</label>
+          <input
+            id="phoneNumber"
+            type="text"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="123456789"
+          />
+          <small>Message @userinfobot on Telegram to get your Chat ID</small>
+        </div>
+      )}
 
       <div className="form-group">
         <label>Reminder Type</label>

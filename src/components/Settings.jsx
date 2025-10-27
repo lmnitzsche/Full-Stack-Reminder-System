@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabase';
 
 export default function Settings({ user }) {
   const [telegramChatId, setTelegramChatId] = useState('');
-  const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(true);
@@ -20,13 +19,12 @@ export default function Settings({ user }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('telegram_chat_id, email_notifications_enabled')
+        .select('telegram_chat_id')
         .eq('id', user.id)
         .single();
 
       if (error) throw error;
       setTelegramChatId(data?.telegram_chat_id || '');
-      setEmailNotificationsEnabled(data?.email_notifications_enabled || false);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -45,7 +43,6 @@ export default function Settings({ user }) {
         .upsert({
           id: user.id,
           telegram_chat_id: telegramChatId,
-          email_notifications_enabled: emailNotificationsEnabled,
           updated_at: new Date().toISOString(),
         });
 
@@ -124,25 +121,6 @@ export default function Settings({ user }) {
             placeholder="123456789"
             className="terminal-input"
           />
-        </div>
-
-        <h3 className="section-title">NOTIFICATION PREFERENCES</h3>
-
-        <div className="form-group">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={emailNotificationsEnabled}
-              onChange={(e) => setEmailNotificationsEnabled(e.target.checked)}
-              className="terminal-checkbox"
-            />
-            <span className="checkbox-text">
-              ENABLE EMAIL NOTIFICATIONS
-              <span className="helper-text">
-                Send reminders to {user.email} (in addition to Telegram)
-              </span>
-            </span>
-          </label>
         </div>
 
         <div className="button-group">

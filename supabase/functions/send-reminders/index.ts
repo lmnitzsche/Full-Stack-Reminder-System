@@ -21,6 +21,7 @@ serve(async (req) => {
       .select(`
         id,
         phone_number,
+        notification_method,
         next_send_at,
         is_recurring,
         recurrence_type,
@@ -57,15 +58,15 @@ serve(async (req) => {
     // Send each reminder
     for (const reminder of reminders) {
       try {
-        // Get user profile to check email notification preference
-        const { data: profile } = await supabaseClient
-          .from('profiles')
-          .select('email_notifications_enabled')
-          .eq('id', reminder.user_id)
-          .single()
-
         // Get user email for email notifications
         const { data: { user } } = await supabaseClient.auth.admin.getUserById(reminder.user_id)
+        
+        // Get user profile for fallback chat ID
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('telegram_chat_id')
+          .eq('id', reminder.user_id)
+          .single()
         
         // Create messages
         const task = reminder.tasks
@@ -77,8 +78,14 @@ serve(async (req) => {
         let emailSuccess = false
         let errors: string[] = []
 
-        // Send via Telegram (phone_number field now stores chat_id)
-        if (reminder.phone_number) {
+        // Determine notification method (default to 'telegram' for old reminders)
+        const notificationMethod = reminder.notification_method || 'telegram'
+
+        // Send via Telegram if method is 'telegram' or 'both'
+        if ((notificationMethod === 'telegram' || notificationMethod === 'both') && 
+            (reminder.phone_number || profile?.telegram_chat_id)) {
+          const chatId = reminder.phone_number || profile?.telegram_chat_id
+          
           const telegramResponse = await fetch(
             `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
             {
@@ -87,7 +94,7 @@ serve(async (req) => {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                chat_id: reminder.phone_number, // This is actually the Telegram chat_id
+                chat_id: chatId,
                 text: telegramMessage,
                 parse_mode: 'Markdown',
               }),
@@ -97,15 +104,15 @@ serve(async (req) => {
           const telegramData = await telegramResponse.json()
 
           if (!telegramResponse.ok || !telegramData.ok) {
-            console.error(`Failed to send Telegram message to ${reminder.phone_number}:`, telegramData)
+            console.error(`Failed to send Telegram message to ${chatId}:`, telegramData)
             errors.push(`Telegram: ${telegramData.description || 'Unknown error'}`)
           } else {
             telegramSuccess = true
           }
         }
 
-        // Send via Email if enabled
-        if (profile?.email_notifications_enabled && user?.email) {
+        // Send via Email if method is 'email' or 'both'
+        if ((notificationMethod === 'email' || notificationMethod === 'both') && user?.email) {
           try {
             const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
             
