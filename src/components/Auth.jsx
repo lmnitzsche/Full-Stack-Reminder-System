@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
-function Auth() {
+function Auth({ onBack, initialMode = 'login' }) {
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -40,6 +40,12 @@ function Auth() {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        {onBack && (
+          <button className="back-button" onClick={onBack}>
+            ← Back to Landing
+          </button>
+        )}
+        
         <h1>Task Tracker</h1>
         <p className="auth-subtitle">Secure task management system</p>
 

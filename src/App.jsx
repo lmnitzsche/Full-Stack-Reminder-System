@@ -4,6 +4,7 @@ import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import Auth from './components/Auth';
 import Settings from './components/Settings';
+import LandingPage from './components/LandingPage';
 import './App.css';
 
 function App() {
@@ -13,6 +14,8 @@ function App() {
   const [editingTask, setEditingTask] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('tasks'); // 'tasks' or 'settings'
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
 
   useEffect(() => {
     // Get initial session
@@ -83,9 +86,30 @@ function App() {
     await supabase.auth.signOut();
   };
 
-  // Show auth screen if not logged in
-  if (!session) {
-    return <Auth />;
+  // Show landing page if not logged in and not in auth mode
+  if (!session && !showAuth) {
+    return (
+      <LandingPage 
+        onLogin={() => {
+          setAuthMode('login');
+          setShowAuth(true);
+        }}
+        onSignUp={() => {
+          setAuthMode('signup');
+          setShowAuth(true);
+        }}
+      />
+    );
+  }
+
+  // Show auth screen if not logged in but auth mode is active
+  if (!session && showAuth) {
+    return (
+      <Auth 
+        initialMode={authMode}
+        onBack={() => setShowAuth(false)} 
+      />
+    );
   }
 
   return (
