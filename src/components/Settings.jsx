@@ -10,6 +10,8 @@ export default function Settings({ user }) {
   const [changingPassword, setChangingPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [passwordMessage, setPasswordMessage] = useState('');
+  const [instantMessage, setInstantMessage] = useState('');
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -89,6 +91,48 @@ export default function Settings({ user }) {
       setPasswordMessage('✗ PASSWORD CHANGE FAILED: ' + error.message);
     } finally {
       setChangingPassword(false);
+    }
+  };
+
+  const sendInstantMessage = async () => {
+    if (!instantMessage.trim()) {
+      alert('Please enter a message!');
+      return;
+    }
+
+    if (!telegramChatId) {
+      alert('Please save your Telegram Chat ID first!');
+      return;
+    }
+
+    setSending(true);
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-instant-telegram`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          message: instantMessage,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('✓ Message sent to your Telegram!');
+        setInstantMessage('');
+      } else {
+        throw new Error(result.error || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('✗ Failed to send message: ' + error.message);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -177,6 +221,42 @@ export default function Settings({ user }) {
 
         {passwordMessage && <div className="message">{passwordMessage}</div>}
       </form>
+
+      {/* Instant Telegram Messenger */}
+      <div className="settings-form telegram-section">
+        <h3 className="section-title">INSTANT TELEGRAM MESSENGER</h3>
+        
+        {telegramChatId ? (
+          <div className="telegram-info">
+            <strong>✓ Your Telegram ID:</strong> {telegramChatId}
+            <br /><small>Messages will be sent to your Telegram</small>
+          </div>
+        ) : (
+          <div className="telegram-info error">
+            <strong>⚠ No Telegram ID found</strong>
+            <br /><small>Add your Telegram Chat ID above first</small>
+          </div>
+        )}
+        
+        <div className="form-group">
+          <label>Message to your Telegram:</label>
+          <textarea
+            value={instantMessage}
+            onChange={(e) => setInstantMessage(e.target.value)}
+            placeholder="Type your message..."
+            className="terminal-input"
+            rows="4"
+          />
+        </div>
+        
+        <button 
+          className="btn-primary"
+          onClick={sendInstantMessage}
+          disabled={sending || !telegramChatId}
+        >
+          {sending ? '[SENDING...]' : '[SEND TO MY TELEGRAM]'}
+        </button>
+      </div>
     </div>
   );
 }
