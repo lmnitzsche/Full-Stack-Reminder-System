@@ -22,6 +22,19 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
     return 'Custom reminder';
   };
 
+  const getNotificationMethodLabel = (method) => {
+    switch (method) {
+      case 'telegram':
+        return 'Telegram';
+      case 'email':
+        return 'Email';
+      case 'both':
+        return 'Telegram & Email';
+      default:
+        return 'Telegram'; // fallback for old reminders
+    }
+  };
+
   return (
     <div className={`task-item ${task.completed ? 'completed' : ''}`}>
       <div className="task-main">
@@ -43,7 +56,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }) {
               {task.reminders.map((reminder) => (
                 <div key={reminder.id} className="reminder-tag">
                   {formatReminder(reminder)}
-                  <span className="reminder-phone"> → Telegram</span>
+                  <span className="reminder-phone"> → {getNotificationMethodLabel(reminder.notification_method)}</span>
                 </div>
               ))}
             </div>
