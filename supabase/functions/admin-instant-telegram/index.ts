@@ -65,7 +65,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           chat_id: profile.telegram_chat_id,
-          text: `📢 Admin Message:\n\n${message}`,
+          text: `${message}`,
           parse_mode: 'Markdown',
         }),
       }
